@@ -116,6 +116,7 @@ public class Date {
 
             ableToDrink = "Yes";
         }
+        
         if (age >= 16) {
 
             ableToDrive = "Yes";
