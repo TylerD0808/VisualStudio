@@ -1,17 +1,18 @@
 import java.util.*;
+import java.io.*;
 
 public class Profile {
     private String firstName;
     private String lastName;
-    private int age;
-    private static int numFriends;
-    private boolean isFriend;
+    private String birthday;
+    //private static int numFriends;
+    //private boolean isFriend;
     //private ArrayList<Profile> friendsList = new ArrayList<Profile>();
 
-    public Profile(String firstName, String lastName, int age) {
+    public Profile(String firstName, String lastName, String birthday) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.age = age;
+        this.birthday = birthday;
         //numFriends = 0;
         //isFriend = false;
     }
@@ -24,21 +25,21 @@ public class Profile {
         return lastName;
     }
 
-    public int getAge() {
-        return age;
+    public String getBirthday() {
+        return birthday;
     }
 
-    private int getNumFriends() {
-        return numFriends;
-    }
+    //private int getNumFriends() {
+        //return numFriends;
+    //}
 
-    public void printProfile() {
-        System.out.println(getFirstName() + " " + getLastName() + "\nFriends: " + getNumFriends() + "\n");
-    }
+    //public void printProfile() {
+    //    System.out.println(getFirstName() + " " + getLastName() + "\nFriends: " + getNumFriends() + "\n");
+    //}
 
-    public void addFriend(Profile profile) {
+    //public void addFriend(Profile profile) {
         //friendsList.add(profile);
-        numFriends++;
+        //numFriends++;
         //profile.addFriend(this.Profile;
-    }
+    //}
 }
