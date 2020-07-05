@@ -1,13 +1,13 @@
 import java.util.*;
 import java.io.*;
 
-public class NewProfile extends Profile {
-    public NewProfile(String firstName, String lastName, String birthday) {
+public class MyProfile extends Profile {
+    public MyProfile(String firstName, String lastName, String birthday) {
         super(firstName, lastName, birthday);
-        printNewProfile();       
+        printMyProfile();       
     }
 
-    public void printNewProfile() {
+    public void printMyProfile() {
         System.out.println("\nNew Profile: " + getFirstName() + " " + getLastName() + "\nAge: " + getBirthday() + "\n");
     }
 }
