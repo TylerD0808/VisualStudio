@@ -1,20 +1,26 @@
 import java.util.*;
 import java.io.*;
+import java.security.cert.X509Certificate;
 
 public class FacebookRun {
-    private static File passwords = new File("/Users/TylerDeBrock/GitHub/VisualStudio/Workspace/Facebook/Passwords.txt");
     private static File profiles = new File("/Users/TylerDeBrock/GitHub/VisualStudio/Workspace/Facebook/ProfileList.txt");
+    private static File passwords = new File("/Users/TylerDeBrock/GitHub/VisualStudio/Workspace/Facebook/Passwords.txt");
 
     private static ArrayList<Profile> profileList = new ArrayList<Profile>();
+    private static ArrayList<Security> securityList = new ArrayList<Security>();
+
+    private static boolean validUsername = false;
+    private static boolean validPassword = false;
+
     private static Scanner scan = new Scanner(System.in);
     private static int numLines = 0;
     private static boolean validInput = false;
-    private static boolean validUsername = false;
     private static int numProfiles;
+    private static int profileNumber;
 
     public static void main(String[]args) throws FileNotFoundException, IOException {
         getProfiles();
-        //getPasswords();
+        getPasswords();
 
         System.out.println("1: Create New Profile\n2: Log In As Existing User");
         
@@ -26,7 +32,7 @@ public class FacebookRun {
                 validInput = true;
             } else if (x == 2) {
                 scan.nextLine();
-                login();
+                logIn();
                 validInput = true;
             } else {
                 System.out.println("Invalid submission. Please try again");
@@ -42,28 +48,94 @@ public class FacebookRun {
         }
     }
 
-    private static void getProfiles() throws FileNotFoundException, IOException{
+    /*
+    --------------------------------------------------------------------------------
+    1: Reads profiles from ProfileList.txt and adds them to ArrayList "profileList"
+    --------------------------------------------------------------------------------
+    */
+    private static void getProfiles() throws FileNotFoundException, IOException {
         numProfiles = findNumLines(profiles) / 4;
         Scanner profileScanner = new Scanner(profiles);
 
         for (int i = 0; i < numProfiles; i++) {
-            scan.nextInt();
+            profileScanner.nextInt();
 
-            scan.nextLine();
-            String f = scan.nextLine();
-            String l = scan.nextLine();
-            String b = scan.nextLine();
+            profileScanner.nextLine();
+            String f = profileScanner.nextLine();
+            String l = profileScanner.nextLine();
+            String b = profileScanner.nextLine();
 
             profileList.add(new Profile(f, l, b));
         }
     }
 
-    private static void login() throws FileNotFoundException, IOException {
-        System.out.print("Username: ");
-        String username = scan.nextLine();
+    /*
+    --------------------------------------------------------------------------------
+    2: Reads passwords from Passwords.txt and adds them to ArrayList "securityList"
+    --------------------------------------------------------------------------------
+    */
+    private static void getPasswords() throws FileNotFoundException, IOException {
+        Scanner securityScanner = new Scanner(passwords);
 
-        System.out.print("Password: ");
-        String password = scan.nextLine();
+        for (int i = 0; i < numProfiles; i++) {
+            securityScanner.nextInt();
+
+            securityScanner.nextLine();
+            String u = securityScanner.nextLine();
+            String p = securityScanner.nextLine();
+            String a1 = securityScanner.nextLine();
+            String a2 = securityScanner.nextLine();
+
+            securityList.add(new Security(u, p, a1, a2));
+        }
+    }
+
+    /*
+    --------------------------------------------------------------------------------
+    3: Logs user into the system with valid username and password
+    --------------------------------------------------------------------------------
+    */
+    private static void logIn() throws FileNotFoundException, IOException {
+        int count = 5;
+
+        while(!validUsername) {
+            System.out.print("Username: ");
+            String username = scan.nextLine();
+
+            for (int i = 0; i < numProfiles; i++) {
+                if (username.equals(securityList.get(i).getUsername())) {
+                    profileNumber = i;
+                    validUsername = true;
+                    break;
+                }
+            }
+
+            if (validUsername == false) {
+                System.out.println("Invalid username. Please try again");
+            }
+        }
+
+        while(!validPassword) {
+            System.out.print("Password: ");
+            String password = scan.nextLine();
+
+            if (password.equals(securityList.get(profileNumber).getPassword())) {
+                validPassword = true;
+            } else {
+                count--;
+
+                if (count == 0) {
+                    securityQuestions();
+                    break;
+                }
+
+                System.out.println("Invalid password. You have " + count + " more attempts");
+            }
+        }
+    }
+
+    private static void securityQuestions() throws FileNotFoundException, IOException {
+        
     }
 
     private static void newProfile() throws FileNotFoundException, IOException {
@@ -106,7 +178,7 @@ public class FacebookRun {
     }
 
     private static boolean checkUsername() throws FileNotFoundException, IOException{
-        Scanner s = new Scanner(passwords);
+        Scanner securityScanner = new Scanner(passwords);
         int y;
 
         findNumLines(passwords);
