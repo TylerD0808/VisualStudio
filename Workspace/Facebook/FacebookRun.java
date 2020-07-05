@@ -5,6 +5,7 @@ import java.security.cert.X509Certificate;
 public class FacebookRun {
     private static File profiles = new File("/Users/TylerDeBrock/GitHub/VisualStudio/Workspace/Facebook/ProfileList.txt");
     private static File passwords = new File("/Users/TylerDeBrock/GitHub/VisualStudio/Workspace/Facebook/Passwords.txt");
+    private static File securityQuestions = new File("/Users/TylerDeBrock/GitHub/VisualStudio/Workspace/Facebook/SecurityQuestions.txt");
 
     private static ArrayList<Profile> profileList = new ArrayList<Profile>();
     private static ArrayList<Security> securityList = new ArrayList<Security>();
@@ -58,14 +59,13 @@ public class FacebookRun {
         Scanner profileScanner = new Scanner(profiles);
 
         for (int i = 0; i < numProfiles; i++) {
-            profileScanner.nextInt();
-
-            profileScanner.nextLine();
             String f = profileScanner.nextLine();
             String l = profileScanner.nextLine();
             String b = profileScanner.nextLine();
 
             profileList.add(new Profile(f, l, b));
+
+            profileScanner.nextLine();
         }
     }
 
@@ -78,15 +78,14 @@ public class FacebookRun {
         Scanner securityScanner = new Scanner(passwords);
 
         for (int i = 0; i < numProfiles; i++) {
-            securityScanner.nextInt();
-
-            securityScanner.nextLine();
             String u = securityScanner.nextLine();
             String p = securityScanner.nextLine();
             String a1 = securityScanner.nextLine();
             String a2 = securityScanner.nextLine();
 
             securityList.add(new Security(u, p, a1, a2));
+
+            securityScanner.nextLine();
         }
     }
 
@@ -98,7 +97,7 @@ public class FacebookRun {
     private static void logIn() throws FileNotFoundException, IOException {
         int count = 5;
 
-        while(!validUsername) {
+        while (!validUsername) {
             System.out.print("Username: ");
             String username = scan.nextLine();
 
@@ -115,7 +114,7 @@ public class FacebookRun {
             }
         }
 
-        while(!validPassword) {
+        while (!validPassword) {
             System.out.print("Password: ");
             String password = scan.nextLine();
 
@@ -129,13 +128,36 @@ public class FacebookRun {
                     break;
                 }
 
-                System.out.println("Invalid password. You have " + count + " more attempts");
+                System.out.print("Invalid password. You have " + count + " more attempt");
+                if (count != 1) {
+                    System.out.println("s");
+                } else {
+                    System.out.println();
+                }
             }
         }
     }
 
     private static void securityQuestions() throws FileNotFoundException, IOException {
+        int questionNumber = Integer.parseInt(securityList.get(profileNumber).getAnswer1().substring(0, 1));
+        String expectedAnswer = securityList.get(profileNumber).getAnswer1().substring(1);
+        String answer = "";
+
+        System.out.print(securityQuestionLocator(questionNumber));
+        answer = scan.nextLine();
+    }
+
+    private static String securityQuestionLocator(int questionNumber) throws FileNotFoundException, IOException {
+        Scanner securityQuestionScanner = new Scanner(securityQuestions);
+        String question = "";
+
+        while (question.equals("")) {
+            if (Integer.parseInt(securityQuestionScanner.nextLine().substring(0, 1)) + 1 == questionNumber) {
+                question = securityQuestionScanner.nextLine().substring(1);
+            }
+        }
         
+        return question;
     }
 
     private static void newProfile() throws FileNotFoundException, IOException {
@@ -190,7 +212,7 @@ public class FacebookRun {
     private static int findNumLines(File file) throws FileNotFoundException, IOException {
         Scanner fileScanner = new Scanner(file);
 
-        while(fileScanner.hasNextLine()) {
+        while (fileScanner.hasNextLine()) {
             numLines++;
             fileScanner.nextLine();
         }
