@@ -11,11 +11,10 @@ public class FacebookRun {
     private static ArrayList<Security> securityList = new ArrayList<Security>();
 
     private static boolean validUsername = false;
-    private static boolean validPassword = false;
+    private static boolean validInput = false;
 
     private static Scanner scan = new Scanner(System.in);
     private static int numLines = 0;
-    private static boolean validInput = false;
     private static int numProfiles;
     private static int profileNumber;
 
@@ -23,22 +22,7 @@ public class FacebookRun {
         getProfiles();
         getPasswords();
 
-        System.out.println("1: Create New Profile\n2: Log In As Existing User");
-        
-        while (!validInput) {
-            int x = scan.nextInt();
-            if (x == 1) {
-                scan.nextLine();
-                newProfile();
-                validInput = true;
-            } else if (x == 2) {
-                scan.nextLine();
-                logIn();
-                validInput = true;
-            } else {
-                System.out.println("Invalid submission. Please try again");
-            }
-        }
+        startMenu();
         
         System.out.println("1: Edit Profile\n2:");
 
@@ -91,77 +75,171 @@ public class FacebookRun {
 
     /*
     --------------------------------------------------------------------------------
-    3: Logs user into the system with valid username and password
+    3: Prints start menu. Either creates new profile or logs user in
+    --------------------------------------------------------------------------------
+    */
+    private static void startMenu() throws FileNotFoundException, IOException {
+        System.out.println("1: Create New Profile\n2: Log In As Existing User");
+        
+        while (!validInput) {
+            int x = scan.nextInt();
+            if (x == 1) {
+                scan.nextLine();
+                newProfile();
+                validInput = true;
+            } else if (x == 2) {
+                scan.nextLine();
+                logIn();
+                validInput = true;
+            } else {
+                System.out.println("Invalid submission. Please try again");
+            }
+        }
+
+        validInput = false;
+        System.out.println();
+    }
+
+    /*
+    --------------------------------------------------------------------------------
+    4: Logs user into the system with valid username and password
     --------------------------------------------------------------------------------
     */
     private static void logIn() throws FileNotFoundException, IOException {
-        int count = 5;
-
-        while (!validUsername) {
-            System.out.print("Username: ");
+        while (!validInput) {
+            System.out.print("\nUsername: ");
             String username = scan.nextLine();
 
             for (int i = 0; i < numProfiles; i++) {
                 if (username.equals(securityList.get(i).getUsername())) {
                     profileNumber = i;
-                    validUsername = true;
+                    validInput = true;
                     break;
                 }
             }
 
-            if (validUsername == false) {
+            if (validInput == false) {
                 System.out.println("Invalid username. Please try again");
             }
         }
 
-        while (!validPassword) {
-            System.out.print("Password: ");
-            String password = scan.nextLine();
-
-            if (password.equals(securityList.get(profileNumber).getPassword())) {
-                validPassword = true;
-            } else {
-                count--;
-
-                if (count == 0) {
-                    securityQuestions();
-                    break;
-                }
-
-                System.out.print("Invalid password. You have " + count + " more attempt");
-                if (count != 1) {
-                    System.out.println("s");
-                } else {
-                    System.out.println();
-                }
-            }
-        }
+        countdown(5, "Password", 0);
     }
 
+    /*
+    --------------------------------------------------------------------------------
+    5: Compares answer to expectedAnswer
+    --------------------------------------------------------------------------------
+    */
     private static void securityQuestions() throws FileNotFoundException, IOException {
         int questionNumber = Integer.parseInt(securityList.get(profileNumber).getAnswer1().substring(0, 1));
-        String expectedAnswer = securityList.get(profileNumber).getAnswer1().substring(1);
-        String answer = "";
+        String expectedAnswer = securityList.get(profileNumber).getAnswer1().substring(2);
 
-        System.out.print(securityQuestionLocator(questionNumber));
-        answer = scan.nextLine();
+        System.out.println(securityQuestionLocator(questionNumber));
+        
+        countdown(3, "Answer", 1);
+
+        questionNumber = Integer.parseInt(securityList.get(profileNumber).getAnswer2().substring(0, 1));
+        expectedAnswer = securityList.get(profileNumber).getAnswer2().substring(2);
+
+        System.out.println(securityQuestionLocator(questionNumber));
+
+        countdown(3, "Answer", 1);
+
+        System.out.println("\nYour password: " + securityList.get(profileNumber).getPassword() + "\nYou better not get this wrong again");
+        System.out.print("Password: ");
+        String password = scan.nextLine();
+
+        if (!password.equals(securityList.get(profileNumber).getPassword())) {
+            System.out.println("\nI can't believe it. I JUST gave you your password. You did this to yourself....");
+            System.exit(0);
+        }
+    
+        validInput = true;
     }
 
+    /*
+    --------------------------------------------------------------------------------
+    6: Given a question number, this returns the security question as a String
+    --------------------------------------------------------------------------------
+    */
     private static String securityQuestionLocator(int questionNumber) throws FileNotFoundException, IOException {
         Scanner securityQuestionScanner = new Scanner(securityQuestions);
-        String question = "";
 
-        while (question.equals("")) {
-            if (Integer.parseInt(securityQuestionScanner.nextLine().substring(0, 1)) + 1 == questionNumber) {
-                question = securityQuestionScanner.nextLine().substring(1);
-            }
+        for (int i = 0; i < questionNumber; i++) {
+            securityQuestionScanner.nextLine();
         }
         
-        return question;
+        return securityQuestionScanner.nextLine().substring(2);
+    }
+
+    /*
+    --------------------------------------------------------------------------------
+    7: Checks if 2 Strings are the same regardless of capitalization. Returns boolean
+    --------------------------------------------------------------------------------
+    */
+    private static boolean match(String answer1, String answer2) throws FileNotFoundException, IOException {
+        return answer1.equalsIgnoreCase(answer2);
+    }
+
+    /*
+    --------------------------------------------------------------------------------
+    8: Counts down from given number, name, and number representing a specific action
+    --------------------------------------------------------------------------------
+    */
+    private static void countdown(int count, String name, int action) throws FileNotFoundException, IOException { 
+        Security getSecurity = securityList.get(profileNumber);
+        String s;
+        count--;
+        validInput = false;
+        
+        while (!validInput) {
+            System.out.print(name + ": ");
+            s = scan.nextLine();
+
+            if (name.equals("Password")) {
+                if (s.equals(getSecurity.getPassword())) {
+                    validInput = true;
+                } else {
+                    count(count--, name, action);
+                }
+            } else if (name.equals("Answer")) {
+                if (match(getSecurity.getAnswer1().substring(2), s) || match(getSecurity.getAnswer2().substring(2), s)) {
+                    validInput = true;
+                } else {
+                    count(count--, name, action);
+                }
+            }
+        }
+
+        validInput = false;
+    }
+
+    /*
+    --------------------------------------------------------------------------------
+    9: Actual function of countdown. Provides final action if count == 0
+    --------------------------------------------------------------------------------
+    */
+    private static void count(int count, String name, int action) throws FileNotFoundException, IOException {
+        if (count > 0) {
+            System.out.print("Invalid " + name.toLowerCase() + ". You have " + count + " more attempt");
+            if (count > 1) {
+                System.out.println("s");
+            } else {
+                System.out.println();
+            }
+        } else if (action == 0) {
+            System.out.println("\nYou clearly forgot your password. Please answer these security questions instead:");
+            securityQuestions();
+        } else if (action == 1) {
+            System.out.print("Well, you tried");
+            System.exit(0);
+        }
     }
 
     private static void newProfile() throws FileNotFoundException, IOException {
         FileWriter f = new FileWriter(profiles, true);
+        Scanner securityQuestionScanner = new Scanner(securityQuestions);
         int x;
         
         findNumLines(profiles);
@@ -177,15 +255,50 @@ public class FacebookRun {
 
         System.out.print("Please enter your preferred username: ");
         String newUsername = scan.nextLine();
-        checkUsername();
-        while (!validUsername) {
+        
+        while (!checkUsername(newUsername)) {
             System.out.print("This username is taken. Please enter a new username: ");
             newUsername = scan.nextLine();
-            checkUsername();
         }
 
-        System.out.print("Please enter a password: ");
-        String newPassword = scan.nextLine();
+        while (!validInput) {
+            System.out.print("Please enter a password: ");
+            String newPassword = scan.nextLine();
+            System.out.print("Please re-enter your password: ");
+            String passwordCheck = scan.nextLine();
+            if (!passwordCheck.equals(newPassword)) {
+                System.out.println("\nYour passwords did not match");
+            } else {
+                validInput = true;
+            }
+        }
+        
+        validInput = false;
+        System.out.println("\n");
+
+        //printSecurityQuestions(0);
+        /*for (int i = 1; i < 11; i++) {
+            System.out.println(i + ": " + securityQuestionScanner.nextLine().substring(2));
+        }*/
+
+        System.out.print("\nPlease select a security question to answer: ");
+        int selection1 = scan.nextInt();
+        scan.nextLine();
+        System.out.print("Answer: ");
+        String answer1 = scan.nextLine();
+
+        //printSecurityQuestions(1);
+        /*for (int i = 1; i < selection1; i++) {
+            System.out.println(i + ": " + securityQuestionScanner.nextLine().substring(2));
+        }
+
+        for (int i = 0; i )*/
+
+        System.out.print("\nPlease select another security question to answer: ");
+        int selection2 = scan.nextInt();
+        scan.nextLine();
+        System.out.print("Answer: ");
+        String answer2 = scan.nextLine();
 
         MyProfile profile = new MyProfile(firstName, lastName, birthday);
         System.out.println("Is this correct? (y/n)");
@@ -199,14 +312,19 @@ public class FacebookRun {
         f.flush();
     }
 
-    private static boolean checkUsername() throws FileNotFoundException, IOException{
-        Scanner securityScanner = new Scanner(passwords);
-        int y;
+    /*
+    --------------------------------------------------------------------------------
+    11: Determines if a given username is valid. Returns true if username is unique
+    --------------------------------------------------------------------------------
+    */
+    private static boolean checkUsername(String username) throws FileNotFoundException, IOException {
+        for (int i = 0; i < numProfiles; i++) {
+            if (securityList.get(i).getUsername().equals(username)) {
+                return false;
+            }
+        }
 
-        findNumLines(passwords);
-        y = (numLines / 3) + 1;
-
-        return validUsername;
+        return true;
     }
 
     private static int findNumLines(File file) throws FileNotFoundException, IOException {

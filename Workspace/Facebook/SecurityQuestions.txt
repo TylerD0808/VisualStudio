@@ -1,10 +1,10 @@
-0What is your favorite search engine?
-1What is your mother's maiden name?
-2What is the name of your favorite teacher's pet?
-3What is your favorite number?
-4What is your favorite french pastry?
-5What is your second favorite color?
-6What is your least favorite animal?
-7What is the name of your dream school?
-8What is the name of the school you settled for?
-9What is the name of your favorite car?
+0 What is your favorite search engine?
+1 What is your mother's maiden name?
+2 What is the name of your favorite teacher's pet?
+3 What is your favorite number?
+4 What is your favorite french pastry?
+5 What is your second favorite color?
+6 What is your least favorite animal?
+7 What is the name of your dream school?
+8 What is the name of the school you settled for?
+9 What is the name of your favorite car?
