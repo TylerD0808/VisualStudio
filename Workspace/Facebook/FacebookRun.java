@@ -106,8 +106,10 @@ public class FacebookRun {
     --------------------------------------------------------------------------------
     */
     private static void logIn() throws FileNotFoundException, IOException {
+        System.out.println();
+        
         while (!validInput) {
-            System.out.print("\nUsername: ");
+            System.out.print("Username: ");
             String username = scan.nextLine();
 
             for (int i = 0; i < numProfiles; i++) {
@@ -119,7 +121,7 @@ public class FacebookRun {
             }
 
             if (validInput == false) {
-                System.out.println("Invalid username. Please try again");
+                System.out.println("\nInvalid username. Please try again");
             }
         }
 
@@ -142,7 +144,7 @@ public class FacebookRun {
         questionNumber = Integer.parseInt(securityList.get(profileNumber).getAnswer2().substring(0, 1));
         expectedAnswer = securityList.get(profileNumber).getAnswer2().substring(2);
 
-        System.out.println(securityQuestionLocator(questionNumber));
+        System.out.println("\n" + securityQuestionLocator(questionNumber));
 
         countdown(3, "Answer", 1);
 
@@ -222,7 +224,7 @@ public class FacebookRun {
     */
     private static void count(int count, String name, int action) throws FileNotFoundException, IOException {
         if (count > 0) {
-            System.out.print("Invalid " + name.toLowerCase() + ". You have " + count + " more attempt");
+            System.out.print("\nInvalid " + name.toLowerCase() + ". You have " + count + " more attempt");
             if (count > 1) {
                 System.out.println("s");
             } else {
@@ -240,7 +242,7 @@ public class FacebookRun {
     private static void newProfile() throws FileNotFoundException, IOException {
         FileWriter f = new FileWriter(profiles, true);
         Scanner securityQuestionScanner = new Scanner(securityQuestions);
-        int x;
+        //int x;
         
         findNumLines(profiles);
 
@@ -250,8 +252,15 @@ public class FacebookRun {
         System.out.print("Please enter your last name: ");
         String lastName = scan.nextLine();
 
-        System.out.print("Please enter your birthday (mm/dd/yy): ");
+        System.out.print("Please enter your birthday (mm/dd/yyyy): ");
         String birthday = scan.nextLine();
+
+        while (!validInput) {
+            checkBirthday(birthday);
+            birthday = scan.nextLine();
+        }
+
+        validInput = false;
 
         System.out.print("Please enter your preferred username: ");
         String newUsername = scan.nextLine();
@@ -306,15 +315,32 @@ public class FacebookRun {
             editProfile();
         }
 
-        x = (numLines / 4) + 1;
+        //x = (numLines / 4) + 1;
 
-        f.append(firstName + "\n" + lastName + "\n" + birthday + "\n" + x + "\n");
+        //f.append(firstName + "\n" + lastName + "\n" + birthday + "\n" + x + "\n");
         f.flush();
+    }
+
+    private static boolean checkBirthday(String birthday) throws FileNotFoundException, IOException {
+        if (birthday.length() == 10) {
+            String birthdayCheck = birthday.substring(2,3) + birthday.substring(5, 6);
+            
+            if (birthdayCheck.equals("//")) {
+                System.out.print("X");
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            System.out.print("\nPlease write your birthday in the proper format (mm/dd/yyyy): ");
+        }
+        
+        return false;
     }
 
     /*
     --------------------------------------------------------------------------------
-    11: Determines if a given username is valid. Returns true if username is unique
+    12: Determines if a given username is valid. Returns true if username is unique
     --------------------------------------------------------------------------------
     */
     private static boolean checkUsername(String username) throws FileNotFoundException, IOException {
