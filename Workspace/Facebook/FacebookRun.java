@@ -12,6 +12,7 @@ public class FacebookRun {
 
     private static boolean validUsername = false;
     private static boolean validInput = false;
+    private static boolean validBirthday = false;
 
     private static Scanner scan = new Scanner(System.in);
     private static int numLines = 0;
@@ -154,7 +155,7 @@ public class FacebookRun {
         String password = scan.nextLine();
 
         if (!password.equals(securityList.get(profileNumber).getPassword())) {
-            System.out.println("\nI can't believe it. I JUST gave you your password. You did this to yourself....");
+            System.out.print("\nI can't believe it. I JUST gave you your password. You did this to yourself....\n");
             System.exit(0);
         }
     
@@ -181,7 +182,7 @@ public class FacebookRun {
     7: Checks if 2 Strings are the same regardless of capitalization. Returns boolean
     --------------------------------------------------------------------------------
     */
-    private static boolean match(String answer1, String answer2) throws FileNotFoundException, IOException {
+    private static boolean match(String answer1, String answer2) {
         return answer1.equalsIgnoreCase(answer2);
     }
 
@@ -197,7 +198,13 @@ public class FacebookRun {
         validInput = false;
         
         while (!validInput) {
-            System.out.print(name + ": ");
+            System.out.print(name);
+            if (!name.equals("Birthday")) {
+                System.out.print(": ");
+            } else {
+                System.out.print(" (mm/dd/yyyy): ");
+            }
+            
             s = scan.nextLine();
 
             if (name.equals("Password")) {
@@ -208,6 +215,12 @@ public class FacebookRun {
                 }
             } else if (name.equals("Answer")) {
                 if (match(getSecurity.getAnswer1().substring(2), s) || match(getSecurity.getAnswer2().substring(2), s)) {
+                    validInput = true;
+                } else {
+                    count(count--, name, action);
+                }
+            } else if (name.equals("Birthday")) {
+                if (checkDate(s)) {
                     validInput = true;
                 } else {
                     count(count--, name, action);
@@ -235,8 +248,12 @@ public class FacebookRun {
             System.out.println("\nYou clearly forgot your password. Please answer these security questions instead:");
             securityQuestions();
         } else if (action == 1) {
-            System.out.print("Well, you tried");
+            System.out.print("Well, you tried\n");
             System.exit(0);
+        } else if (action == 2) {
+            System.out.print("\nPlease write your " + name + " in the proper format (mm/dd/yyyy): ");
+        } else if (action == 3) {
+            System.out.print("Invalid " + name + ". Please try again: ");
         }
     }
 
@@ -244,26 +261,21 @@ public class FacebookRun {
         FileWriter f = new FileWriter(profiles, true);
         Scanner securityQuestionScanner = new Scanner(securityQuestions);
         //int x;
-        
-        findNumLines(profiles);
 
         System.out.print("\nPlease enter your first name: ");
         String firstName = scan.nextLine();
 
-        System.out.print("Please enter your last name: ");
+        System.out.print("\nPlease enter your last name: ");
         String lastName = scan.nextLine();
 
-        System.out.print("Please enter your birthday (mm/dd/yyyy): ");
+        System.out.print("\nPlease enter your birthday (mm/dd/yyyy): ");
         String birthday = scan.nextLine();
 
-        while (!validInput) {
-            checkBirthday(birthday);
-            birthday = scan.nextLine();
+        if (!checkDate(birthday)) {
+            countdown(3, "Birthday", 2);
         }
 
-        validInput = false;
-
-        System.out.print("Please enter your preferred username: ");
+        System.out.print("\nPlease enter your preferred username: ");
         String newUsername = scan.nextLine();
         
         while (!checkUsername(newUsername)) {
@@ -322,29 +334,30 @@ public class FacebookRun {
         f.flush();
     }
 
-    private static boolean checkBirthday(String birthday) throws FileNotFoundException, IOException {
-        if (birthday.length() == 10) {
-            String birthdayCheck = birthday.substring(2,3) + birthday.substring(5, 6);
-            
-            if (birthdayCheck.equals("//")) {
-                System.out.print("X");
-                return false;
-            } else {
-                return true;
+    private static boolean checkDate(String date) throws FileNotFoundException, IOException {
+        if (date.length() == 10) {
+            String dateCheck = date.substring(2,3) + date.substring(5, 6);
+            int month = Integer.parseInt(date.substring(0, 2));
+            int day = Integer.parseInt(date.substring(3, 5));
+            int year = Integer.parseInt(date.substring(6));
+
+            if (dateCheck.equals("//")) {
+                
             }
-        } else {
-            System.out.print("\nPlease write your birthday in the proper format (mm/dd/yyyy): ");
         }
         
         return false;
     }
+
+    //System.out.println();
+    //return true;
 
     /*
     --------------------------------------------------------------------------------
     12: Determines if a given username is valid. Returns true if username is unique
     --------------------------------------------------------------------------------
     */
-    private static boolean checkUsername(String username) throws FileNotFoundException, IOException {
+    private static boolean checkUsername(String username) {
         for (int i = 0; i < numProfiles; i++) {
             if (securityList.get(i).getUsername().equals(username)) {
                 return false;
